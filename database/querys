@@ -1,0 +1,479 @@
+-- Users table
+CREATE TABLE users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  contact_number VARCHAR(20) NOT NULL UNIQUE,
+  password_hash VARCHAR(250) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- Roles table
+CREATE TABLE `roles` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(255) DEFAULT NULL,
+  `self_only` TINYINT(1) DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Permission modules table
+CREATE TABLE `permission_modules` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Permission actions table
+CREATE TABLE `permission_actions` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NOT NULL,
+  `description` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Role permissions junction table
+CREATE TABLE `role_permissions` (
+  `role_id` INT NOT NULL,
+  `module_id` INT NOT NULL,
+  `action_id` INT NOT NULL,
+  PRIMARY KEY (`role_id`, `module_id`, `action_id`),
+  CONSTRAINT `fk_role_permission_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_role_permission_module` FOREIGN KEY (`module_id`) REFERENCES `permission_modules` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_role_permission_action` FOREIGN KEY (`action_id`) REFERENCES `permission_actions` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- User roles junction table
+CREATE TABLE `user_roles` (
+  `user_id` INT NOT NULL,
+  `role_id` INT NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`, `role_id`),
+  CONSTRAINT `fk_user_role_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_user_role_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--companies table
+CREATE TABLE companies (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    company_name VARCHAR(255) NOT NULL UNIQUE,
+    description TEXT,
+    state VARCHAR(100),
+    city VARCHAR(100),
+    contact_number VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+--stores table
+CREATE TABLE stores (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  store_id VARCHAR(255) UNIQUE NOT NULL,
+  store_name VARCHAR(255) UNIQUE NOT NULL,
+  available_cash VARCHAR(20) NULL DEFAULT 0,
+  state VARCHAR(100),
+  city VARCHAR(100),
+  company_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (company_id) REFERENCES companies(id) ON DELETE CASCADE
+);
+
+--departments table
+CREATE TABLE departments (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  department VARCHAR(255) UNIQUE NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+--cashiers table
+CREATE TABLE cashier (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    company_id VARCHAR(100) NOT NULL,
+    store_id VARCHAR(100) NOT NULL,
+    cancel_approver_name VARCHAR(100) NOT NULL,
+    cancel_approver_contact VARCHAR(100) NOT NULL,
+    isactivate TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+ --Hod's table
+  CREATE TABLE hod (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    company_id VARCHAR(100) NOT NULL,
+    store_id VARCHAR(100) NOT NULL,
+    department_id INT,
+    isactivate TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+  
+  -- (Optional) Foreign key constraints, if applicable:
+  -- FOREIGN KEY (company_id) REFERENCES companies(id),
+  -- FOREIGN KEY (store_id) REFERENCES stores(id),
+  -- FOREIGN KEY (department_id) REFERENCES departments(id)
+);
+
+
+--Employees table
+CREATE TABLE employees (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  contact_number VARCHAR(20) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  company_id INT,
+  store_id INT,
+  department_id INT,
+  hod_id INT,
+  isActive BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+--otp table
+CREATE TABLE otp (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  userid INT NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  otp VARCHAR(10) NOT NULL,
+  expireat DATETIME NOT NULL
+);
+
+--deposites table
+
+CREATE TABLE deposites (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    transition_id VARCHAR(255),
+    store_id INT NOT NULL,
+    depositor_id INT NOT NULL,
+    transition_type VARCHAR(50) NOT NULL,
+    cheque_date DATE,
+    cheque_number VARCHAR(100),
+    bank_name VARCHAR(100),
+    phonepe_id VARCHAR(100),
+    amount DECIMAL(10,2) NOT NULL,
+    balance_amount DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+--balance_amount table
+ CREATE TABLE stores_amount (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    available_cash DECIMAL(10,2) NOT NULL,
+    store_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+--Employess table
+CREATE TABLE employees (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    company_id INT NOT NULL,
+    store_id INT NULL,
+    department_id INT NOT NULL,
+    hod_id INT NOT NULL,
+    isactive BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Instructors  table
+CREATE TABLE instructors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    store_id INT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- Head Of Accounts Table
+
+CREATE TABLE head_of_accounts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Bills table
+CREATE TABLE bills (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    billtype ENUM('gst', 'non gst') NOT NULL,
+    user_id INT NOT NULL,
+    store_id VARCHAR(111) NOT NULL,
+    cost_code VARCHAR(255) NOT NULL,
+    voucher_date DATE NOT NULL,
+    voucher_reference_number VARCHAR(255),  -- Removed UNIQUE constraint
+    invoice_date DATE NOT NULL,
+    invoice_reference_number VARCHAR(255),
+    supplier_name VARCHAR(255) NOT NULL,
+    supplier_gst VARCHAR(255),
+    nature_of_expense VARCHAR(255) NOT NULL,
+    head_of_accounts VARCHAR(255) NOT NULL,
+    instructed_by VARCHAR(255) NOT NULL,
+    taxable_amount VARCHAR(255),
+    cgst_percent VARCHAR(10),
+    sgst_percent VARCHAR(10),
+    igst_percent VARCHAR(10),
+    cgst VARCHAR(255),
+    sgst VARCHAR(255),
+    igst VARCHAR(255),
+    rounding_off VARCHAR(255),
+    total_amount VARCHAR(255) NOT NULL,
+    narration TEXT,
+    approved_by INT,
+    is_cancelled BOOLEAN DEFAULT FALSE,
+    sent_to_admin BOOLEAN DEFAULT FALSE,
+    sent_to_tally BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_approved BOOLEAN DEFAULT FALSE,
+    updated_balance VARCHAR(222)
+
+    CHECK (
+        (billtype = 'gst' AND supplier_gst IS NOT NULL AND taxable_amount IS NOT NULL AND 
+         cgst_percent IS NOT NULL AND sgst_percent IS NOT NULL AND igst_percent IS NOT NULL AND
+         cgst IS NOT NULL AND sgst IS NOT NULL AND igst IS NOT NULL)
+        OR
+        (billtype = 'non gst')
+    )
+);
+
+
+-- vendors table
+CREATE TABLE vendors (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  vendor_name VARCHAR(255) NOT NULL UNIQUE,
+  gst_number VARCHAR(50),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+-- myreports
+CREATE TABLE myreports (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  userId INT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+ALTER TABLE myreports
+ADD COLUMN filters JSON DEFAULT NULL,
+ADD COLUMN selected_columns JSON DEFAULT NULL;
+
+
+-- hod table
+CREATE TABLE hod (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  store_id INT NOT NULL,
+  department_id INT NOT NULL,
+  hod_name VARCHAR(100) NOT NULL,
+  contact_number VARCHAR(15) NOT NULL UNIQUE,
+  isactive BOOLEAN DEFAULT TRUE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- CREATE TABLE nature_of_expense (
+--   id INT AUTO_INCREMENT PRIMARY KEY,
+--   name VARCHAR(255) NOT NULL,
+--   hoa_id INT NOT NULL,
+--   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+-- );
+
+CREATE TABLE nature_of_expense (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  hoa_id INT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_name FOREIGN KEY (name) REFERENCES expense_names(name),
+  CONSTRAINT fk_hoa_id FOREIGN KEY (hoa_id) REFERENCES hoa(id)
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ALTER TABLE users
+ADD COLUMN eid VARCHAR(50) NOT NULL UNIQUE AFTER id,
+ADD COLUMN cid INT NOT NULL AFTER password_hash,
+ADD COLUMN sid INT NOT NULL AFTER cid,
+ADD COLUMN did INT NOT NULL AFTER sid,
+ADD COLUMN hod_id INT NOT NULL AFTER did,
+ADD COLUMN isactive BOOLEAN DEFAULT 1 AFTER hod_id;
+
+-- bills table update
+ALTER TABLE bills 
+ADD approved_at TIMESTAMP NULL DEFAULT NULL AFTER is_approved;
+
+ALTER TABLE users 
+ADD COLUMN ishod BOOLEAN DEFAULT 0 AFTER hod_id,
+ADD COLUMN isinstructor BOOLEAN DEFAULT 0 AFTER ishod;
+
+CREATE TABLE instructors (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    cid INT NOT NULL,
+    store_id INT NOT NULL,
+    department_id INT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    contact_number VARCHAR(20),
+    eid VARCHAR(100),
+    isactive TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+
+
+
+
+
+
+ALTER TABLE instructors 
+ADD COLUMN did INT NOT NULL AFTER store_id;
+
+ALTER TABLE hod 
+ADD COLUMN eid VARCHAR(100) NOT NULL 
+AFTER department_id;
+
+ALTER TABLE hod 
+ADD COLUMN cid VARCHAR(100) NOT NULL 
+AFTER id;
+
+ALTER TABLE bills 
+ADD did VARCHAR(100) NOT NULL AFTER store_id;
+
+
+ALTER TABLE vendors
+ADD COLUMN store_id INT AFTER gst_number;
+
+ALTER TABLE bills
+ADD COLUMN cid INT AFTER user_id;
+
+
+make contact_number null true in employees table
+
+CREATE TABLE user_stores (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    store_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (store_id) REFERENCES stores(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_store (user_id, store_id)
+);
+
+ALTER TABLE hod DROP INDEX contact_number;
+
+
+
+CREATE TABLE transitions (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  cid INT NOT NULL,
+  sid INT NOT NULL,
+  did INT NOT NULL,
+  tnx_id INT NOT NULL,
+  username VARCHAR(255) NOT NULL,
+  supplier VARCHAR(255) NOT NULL,
+  gst VARCHAR(255) NULL,
+  transition_type VARCHAR(255) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  balance DECIMAL(10,2) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+ALTER TABLE deposites
+ADD COLUMN cid VARCHAR(255) NULL AFTER transition_id
+
+  
+
+
+
+
+
+ALTER TABLE bills
+ADD COLUMN sent_to_admin_at VARCHAR(255) NULL AFTER sent_to_admin,
+ADD COLUMN pdf_id int(6) NULL AFTER sent_to_admin_at;
+
+change bills.approved_at to VARCHAR(255) from TIMESTAMP
+
+
+
+
+CREATE TABLE otp_verifications (
+  id            BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  bill_id       BIGINT UNSIGNED NOT NULL,
+  otp_code      VARCHAR(6)      NOT NULL,
+  expires_at    DATETIME        NOT NULL,
+  is_used       TINYINT(1)      DEFAULT 0,
+  created_at    DATETIME        DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_bill (bill_id),
+  INDEX idx_otp  (otp_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE bills
+ADD COLUMN cancelled_by VARCHAR(10) NULL AFTER is_cancelled,
+ADD COLUMN cancelled_at DATETIME NULL AFTER cancelled_by,
+ADD COLUMN is_bill_closed BOOLEAN DEFAULT 0 AFTER cancelled_at;
+ADD COLUMN reason_for_reject TEXT NULL AFTER cancelled_by
+
+----------------------------------------------------------------------------------------
+
+
+-- december 2023 changes
+
+ALTER TABLE bills
+MODIFY billtype ENUM('gst', 'non gst', 'advance') NOT NULL;
+
+CREATE TABLE advance (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    cid INT NOT NULL,
+    reason VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE otp_verifications
+MODIFY bill_id VARCHAR(191) NOT NULL;
+
+ALTER TABLE bills
+ADD COLUMN is_self_closed TINYINT(1) DEFAULT 0 AFTER remarks;
+
